@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Finance Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        
+        /* Premium Dark Sidebar */
+        .sidebar-bg { background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%); }
+        
+        /* THE BLACK BALANCE CARD DESIGN */
+        .balance-card { background: #000000; }
+        
+        .sidebar-item { 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            cursor: pointer; 
+            color: #94a3b8;
+            border-radius: 12px;
+            margin-bottom: 4px;
+        }
+        
+        .sidebar-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        .sidebar-item.active { 
+            background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%);
+            color: white !important; 
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4); 
+        }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .action-column { min-width: 145px; white-space: nowrap !important; }
+        .custom-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        
+        .stat-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
+
+        /* Modal adjust for better mobile/compact view */
+        .modal-container {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-72 sidebar-bg hidden md:flex flex-col shadow-2xl z-30">
+            <div class="p-8">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                        <i class="fa-solid fa-wallet text-white text-lg"></i>
+                    </div>
+                    <h1 class="text-xl font-black text-white tracking-tight">Smart Finance Tracker</h1>
+                </div>
+            </div>
+            
+            <nav class="flex-1 px-4 space-y-1 overflow-y-auto custom-scroll pb-10">
+                <div class="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Main Menu</div>
+                <button onclick="showSection('dashboard')" class="sidebar-item active w-full flex items-center px-4 py-3 text-sm font-semibold">
+                    <i class="fa-solid fa-chart-pie mr-3 w-5"></i> Dashboard
+                </button>
+                
+                <div class="pt-6 pb-2 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Cash Flow</div>
+                <button onclick="showSection('income')" class="sidebar-item w-full flex items-center px-4 py-3 text-sm font-semibold">
+                    <i class="fa-solid fa-arrow-trend-up mr-3 w-5 text-emerald-400"></i> Project Income
+                </button>
+                <button onclick="showSection('savings')" class="sidebar-item w-full flex items-center px-4 py-3 text-sm font-semibold">
+                    <i class="fa-solid fa-vault mr-3 w-5 text-pink-400"></i> Savings & Invest
+                </button>
+                
+                <div class="pt-6 pb-2 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Daily Outflow</div>
+                <button onclick="showSection('daily')" class="sidebar-item w-full flex items-center px-4 py-3 text-sm font-semibold">
+                    <i class="fa-solid fa-bolt mr-3 w-5 text-orange-400"></i> Daily Spend
+                </button>
+                <button onclick="showSection('grocery')" class="sidebar-item w-full flex items-center px-4 py-3 text-sm font-semibold">
+                    <i class="fa-solid fa-cart-shopping mr-3 w-5 text-blue-400"></i> Grocery
+                </button>
+                <button onclick="showSection('personal')" class="sidebar-item w-full flex items-center px-4 py-3 text-sm font-semibold">
+                    <i class="fa-solid fa-user-tag mr-3 w-5 text-purple-400"></i> Personal
+                </button>
+                <button onclick="showSection('household')" class="sidebar-item w-full flex items-center px-4 py-3 text-sm font-semibold">
+                    <i class="fa-solid fa-house-chimney mr-3 w-5 text-cyan-400"></i> Household
+                </button>
+                
+                <div class="pt-6 pb-2 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Liability</div>
+                <button onclick="showSection('dues')" class="sidebar-item w-full flex items-center px-4 py-3 text-sm font-semibold">
+                    <i class="fa-solid fa-hand-holding-heart mr-3 w-5 text-red-400"></i> Money Payable
+                </button>
+                <button onclick="showSection('receivables')" class="sidebar-item w-full flex items-center px-4 py-3 text-sm font-semibold">
+                    <i class="fa-solid fa-hand-holding-dollar mr-3 w-5 text-emerald-400"></i> Money Receivable
+                </button>
+            </nav>
+            
+            <div class="p-6 border-t border-white/5">
+                <div class="bg-white/5 rounded-2xl p-4">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">Status</p>
+                    <div class="flex items-center text-xs text-emerald-400 font-bold">
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span>
+                        Syncing Live
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-y-auto">
+            <header class="glass-header px-8 py-5 flex justify-between items-center sticky top-0 z-20">
+                <div>
+                    <h2 id="section-title" class="text-xl font-bold text-slate-900 tracking-tight">Dashboard</h2>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Welcome back, User</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="openModalForAdd()" class="bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 active:scale-95 transition-all flex items-center">
+                        <i class="fa-solid fa-plus-circle mr-2 text-lg"></i> New Transaction
+                    </button>
+                </div>
+            </header>
+
+            <div id="content-area" class="p-8 max-w-7xl mx-auto w-full">
+                <!-- Dashboard Overview -->
+                <div id="dashboard-view" class="space-y-8">
+                    <!-- Net Balance -->
+                    <div class="balance-card p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
+                        <div class="absolute -top-10 -right-10 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
+                        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                            <div>
+                                <p class="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] mb-2">Available Net Balance</p>
+                                <h3 class="text-4xl font-black text-white tracking-tighter" id="stat-balance">Rs. 0</h3>
+                            </div>
+                            <div class="bg-white/10 backdrop-blur-md border border-white/10 p-6 rounded-3xl">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-white">
+                                        <i class="fa-solid fa-chart-line text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-slate-400 font-bold uppercase">System health</p>
+                                        <p class="text-sm font-bold text-white">Account Secured</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm stat-card">
+                            <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center mb-4">
+                                <i class="fa-solid fa-arrow-up text-emerald-500"></i>
+                            </div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Income</p>
+                            <h3 class="text-2xl font-black text-slate-900 mt-1" id="stat-income">Rs. 0</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm stat-card">
+                            <div class="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center mb-4">
+                                <i class="fa-solid fa-arrow-down text-red-500"></i>
+                            </div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Expenses</p>
+                            <h3 class="text-2xl font-black text-slate-900 mt-1" id="stat-expense">Rs. 0</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm stat-card">
+                            <div class="w-10 h-10 bg-pink-50 rounded-xl flex items-center justify-center mb-4">
+                                <i class="fa-solid fa-vault text-pink-500"></i>
+                            </div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Savings</p>
+                            <h3 class="text-2xl font-black text-slate-900 mt-1" id="stat-total-savings">Rs. 0</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm stat-card">
+                            <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mb-4">
+                                <i class="fa-solid fa-handshake text-orange-500"></i>
+                            </div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Payable</p>
+                            <h3 class="text-2xl font-black text-slate-900 mt-1" id="stat-dues">Rs. 0</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm stat-card">
+                            <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center mb-4">
+                                <i class="fa-solid fa-hand-holding-dollar text-emerald-500"></i>
+                            </div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Receivable</p>
+                            <h3 class="text-2xl font-black text-slate-900 mt-1" id="stat-receivables">Rs. 0</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm stat-card">
+                            <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-4">
+                                <i class="fa-solid fa-calendar-day text-blue-500"></i>
+                            </div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Daily Spend</p>
+                            <h3 class="text-2xl font-black text-slate-900 mt-1" id="stat-daily-total">Rs. 0</h3>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity Section -->
+                    <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100">
+                        <div class="flex justify-between items-center mb-8">
+                            <h3 class="text-lg font-bold text-slate-900 flex items-center">
+                                <i class="fa-solid fa-clock-rotate-left mr-3 text-indigo-500"></i> Transaction History
+                            </h3>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase bg-slate-50 px-3 py-1 rounded-full">Recent Activity</span>
+                        </div>
+                        <div id="recent-activity-list" class="space-y-4"></div>
+                    </div>
+                </div>
+
+                <!-- Section View (Tables) -->
+                <div id="dynamic-view" class="hidden space-y-6">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 bg-white p-6 rounded-[2rem] border border-slate-100">
+                        <div class="flex items-center">
+                            <div id="section-icon-box" class="w-14 h-14 rounded-2xl flex items-center justify-center mr-5 shadow-lg shadow-current/10">
+                                <i id="section-mini-icon" class="fa-solid text-2xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5" id="section-type-label"></p>
+                                <h3 class="text-2xl font-black text-slate-900" id="dynamic-title">Section Name</h3>
+                            </div>
+                        </div>
+                        <div class="bg-slate-900 px-8 py-4 rounded-2xl flex flex-col justify-center">
+                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1" id="section-total-label">Balance</p>
+                            <h4 class="text-2xl font-black text-white" id="section-total-val">Rs. 0</h4>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
+                        <div class="overflow-x-auto custom-scroll">
+                            <table class="w-full text-left min-w-[800px]">
+                                <thead class="bg-slate-50 border-b border-slate-100 text-[10px] font-black uppercase text-slate-400 tracking-[0.1em]">
+                                    <tr id="table-head"></tr>
+                                </thead>
+                                <tbody id="table-body" class="text-sm divide-y divide-slate-100 text-slate-600"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ENTRY MODAL (CENTERED & SMALLER) -->
+    <div id="modal" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-50 p-4 backdrop-blur-md">
+        <div class="bg-white w-full max-w-md rounded-[2rem] shadow-2xl p-6 transform transition-all border border-white/20 modal-container custom-scroll">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <p id="modal-subtitle" class="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mb-1"></p>
+                    <h3 class="text-xl font-black text-slate-900" id="modal-title">New Entry</h3>
+                </div>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-red-500 hover:bg-red-50 transition-all">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form id="entry-form" class="space-y-5">
+                <input type="hidden" id="edit-index" value="-1">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Date</label>
+                        <input type="date" id="entry-date" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold text-sm" required>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Description</label>
+                        <input type="text" id="entry-desc" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold text-sm" placeholder="e.g. Salary, Rent" required>
+                    </div>
+                    <div id="dues-fields" class="hidden space-y-4">
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Total Amount</label>
+                            <input type="number" id="entry-total-due" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-base" placeholder="0">
+                        </div>
+                        <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
+                            <label class="block text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1" id="initial-pay-label">Initial Paid</label>
+                            <input type="number" id="entry-paid-due" class="w-full px-4 py-3 bg-white border border-indigo-100 rounded-xl font-bold text-sm" value="0">
+                        </div>
+                    </div>
+                    <div id="standard-amount">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Amount (Rs.)</label>
+                        <input type="number" id="entry-amount" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xl font-black text-indigo-600" placeholder="0">
+                    </div>
+                </div>
+                <button type="submit" class="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 active:scale-95 transition-all mt-2">
+                    Save Transaction
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- HISTORY MODAL (CENTERED & SMALLER) -->
+    <div id="history-modal" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-[60] p-4 backdrop-blur-md">
+        <div class="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl p-6 border border-white/20 modal-container custom-scroll">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Payment History</p>
+                    <h3 class="text-xl font-black text-slate-900" id="hist-name">Details</h3>
+                </div>
+                <button onclick="closeHistory()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-red-500"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="hist-list" class="space-y-2 max-h-48 overflow-y-auto mb-6 pr-1 custom-scroll"></div>
+            <div id="payment-input-section" class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                <p class="text-[9px] font-black text-slate-500 uppercase mb-4 text-center tracking-widest">New Payment</p>
+                <div class="space-y-3">
+                    <input type="date" id="new-pay-date" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold outline-none focus:border-indigo-500">
+                    <input type="number" id="new-pay-amount" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm font-bold outline-none focus:border-indigo-500" placeholder="Amount">
+                    <button onclick="saveNewPayment()" class="w-full bg-slate-900 text-white py-3 rounded-lg text-sm font-bold hover:bg-black transition-all">
+                        Record
+                    </button>
+                </div>
+            </div>
+            <div id="fully-paid-message" class="hidden bg-emerald-50 text-emerald-600 p-6 rounded-2xl text-center font-bold text-sm">
+                <i class="fa-solid fa-circle-check mb-2 block text-xl"></i> 
+                Fully Cleared
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let data = JSON.parse(localStorage.getItem('smart_finance_v2')) || {
+            income: [], savings: [], daily: [], grocery: [], personal: [], household: [], dues: [], receivables: []
+        };
+
+        const config = {
+            dashboard: { title: 'Dashboard', type: 'Overview', icon: 'fa-chart-pie', color: 'bg-indigo-500 text-white' },
+            income: { title: 'Project Income', type: 'Income (+)', icon: 'fa-arrow-trend-up', color: 'bg-emerald-500 text-white' },
+            savings: { title: 'Savings & Investment', type: 'Saving (-)', icon: 'fa-vault', color: 'bg-pink-500 text-white' },
+            daily: { title: 'Daily Spend', type: 'Expense (-)', icon: 'fa-bolt', color: 'bg-orange-500 text-white' },
+            grocery: { title: 'Monthly Grocery', type: 'Expense (-)', icon: 'fa-cart-shopping', color: 'bg-blue-500 text-white' },
+            personal: { title: 'Personal Expense', type: 'Expense (-)', icon: 'fa-user-tag', color: 'bg-purple-500 text-white' },
+            household: { title: 'Household Expense', type: 'Expense (-)', icon: 'fa-house-chimney', color: 'bg-cyan-500 text-white' },
+            dues: { title: 'Money Payable', type: 'Payable (-)', icon: 'fa-handshake', color: 'bg-red-500 text-white' },
+            receivables: { title: 'Money Receivable', type: 'Receivable (+)', icon: 'fa-hand-holding-dollar', color: 'bg-emerald-500 text-white' }
+        };
+
+        let currentSection = 'dashboard';
+        let activeSectionForModal = 'income';
+        let currentSubIndex = null;
+        let currentSubSid = null;
+
+        function updateStorage() {
+            localStorage.setItem('smart_finance_v2', JSON.stringify(data));
+            updateDashboard();
+        }
+
+        function showSection(id) {
+            currentSection = id;
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+            const sidebarBtns = Array.from(document.querySelectorAll('.sidebar-item'));
+            const activeBtn = sidebarBtns.find(el => el.innerText.trim().includes(config[id].title));
+            if(activeBtn) activeBtn.classList.add('active');
+            document.getElementById('section-title').innerText = config[id].title;
+            
+            if(id === 'dashboard') {
+                document.getElementById('dashboard-view').classList.remove('hidden');
+                document.getElementById('dynamic-view').classList.add('hidden');
+                updateDashboard();
+            } else {
+                document.getElementById('dashboard-view').classList.add('hidden');
+                document.getElementById('dynamic-view').classList.remove('hidden');
+                document.getElementById('dynamic-title').innerText = config[id].title;
+                document.getElementById('section-type-label').innerText = config[id].type;
+                const iconBox = document.getElementById('section-icon-box');
+                const miniIcon = document.getElementById('section-mini-icon');
+                iconBox.className = `w-14 h-14 rounded-2xl flex items-center justify-center mr-5 shadow-lg shadow-current/20 ${config[id].color}`;
+                miniIcon.className = `fa-solid ${config[id].icon} text-2xl`;
+                document.getElementById('section-total-label').innerText = `Outstanding Total`;
+                renderTable(id);
+            }
+        }
+
+        function openModalForAdd() {
+            activeSectionForModal = (currentSection === 'dashboard') ? 'income' : currentSection;
+            document.getElementById('modal-title').innerText = "New Entry";
+            document.getElementById('edit-index').value = "-1";
+            openModal();
+        }
+
+        function openModal() {
+            if (document.getElementById('edit-index').value === "-1") {
+                document.getElementById('entry-date').value = new Date().toISOString().split('T')[0];
+            }
+            document.getElementById('modal').classList.replace('hidden', 'flex');
+            document.getElementById('modal-subtitle').innerText = config[activeSectionForModal].title;
+            const isSub = (activeSectionForModal === 'dues' || activeSectionForModal === 'receivables');
+            document.getElementById('dues-fields').classList.toggle('hidden', !isSub);
+            document.getElementById('standard-amount').classList.toggle('hidden', isSub);
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.replace('flex', 'hidden');
+            document.getElementById('entry-form').reset();
+            document.getElementById('edit-index').value = "-1";
+        }
+
+        document.getElementById('entry-form').onsubmit = (e) => {
+            e.preventDefault();
+            const date = document.getElementById('entry-date').value;
+            const desc = document.getElementById('entry-desc').value;
+            const editIdx = parseInt(document.getElementById('edit-index').value);
+
+            if(activeSectionForModal === 'dues' || activeSectionForModal === 'receivables') {
+                const total = parseFloat(document.getElementById('entry-total-due').value) || 0;
+                const initial = parseFloat(document.getElementById('entry-paid-due').value) || 0;
+                
+                const newObj = {
+                    date, desc, total,
+                    payments: editIdx === -1 ? (initial > 0 ? [{amount: initial, date}] : []) : data[activeSectionForModal][editIdx].payments
+                };
+                if (editIdx === -1) data[activeSectionForModal].push(newObj);
+                else data[activeSectionForModal][editIdx] = newObj;
+            } else {
+                const amount = parseFloat(document.getElementById('entry-amount').value) || 0;
+                const newObj = { date, desc, amount };
+                if (editIdx === -1) data[activeSectionForModal].push(newObj);
+                else data[activeSectionForModal][editIdx] = newObj;
+            }
+            updateStorage();
+            closeModal();
+            showSection(activeSectionForModal);
+        };
+
+        function renderTable(sid) {
+            const head = document.getElementById('table-head');
+            const body = document.getElementById('table-body');
+            const totalValEl = document.getElementById('section-total-val');
+            body.innerHTML = '';
+            let items = [...(data[sid] || [])].sort((a,b) => new Date(b.date) - new Date(a.date));
+            let sectionTotal = 0;
+
+            if(sid === 'dues' || sid === 'receivables') {
+                head.innerHTML = `<th class="px-8 py-5">Date</th><th class="px-8 py-5">Party</th><th class="px-8 py-5">Total</th><th class="px-8 py-5">Remaining</th><th class="px-8 py-5 text-center action-column">Action</th>`;
+                items.forEach((item) => {
+                    const paid = item.payments.reduce((s,p)=>s+p.amount, 0);
+                    const remaining = item.total - paid;
+                    sectionTotal += remaining;
+                    const originalIdx = data[sid].indexOf(item);
+                    body.innerHTML += `<tr class="hover:bg-slate-50 transition-colors"><td class="px-8 py-5 text-xs font-bold text-slate-400">${item.date}</td><td class="px-8 py-5 font-bold text-slate-800">${item.desc}</td><td class="px-8 py-5">Rs. ${item.total.toLocaleString()}</td><td class="px-8 py-5 font-black text-red-500">Rs. ${remaining.toLocaleString()}</td><td class="px-8 py-5 text-center action-column"><button onclick="openSubHistory('${sid}', ${originalIdx})" class="bg-indigo-50 text-indigo-600 px-4 py-1.5 rounded-lg font-bold hover:bg-indigo-100 transition-colors text-xs mr-3">History</button><button onclick="editEntry('${sid}', ${originalIdx})" class="text-slate-400 mx-1 hover:text-indigo-500"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteItem('${sid}', ${originalIdx})" class="text-slate-300 mx-1 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
+                });
+            } else {
+                head.innerHTML = `<th class="px-8 py-5">Date</th><th class="px-8 py-5">Details</th><th class="px-8 py-5">Amount</th><th class="px-8 py-5 text-center action-column">Action</th>`;
+                items.forEach((item) => {
+                    const originalIdx = data[sid].indexOf(item);
+                    sectionTotal += item.amount;
+                    body.innerHTML += `<tr class="hover:bg-slate-50 transition-colors"><td class="px-8 py-5 text-xs font-bold text-slate-400">${item.date}</td><td class="px-8 py-5 font-bold text-slate-800">${item.desc}</td><td class="px-8 py-5 font-black text-slate-900">Rs. ${item.amount.toLocaleString()}</td><td class="px-8 py-5 text-center action-column"><button onclick="editEntry('${sid}', ${originalIdx})" class="text-slate-400 mx-2 hover:text-indigo-500"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteItem('${sid}', ${originalIdx})" class="text-slate-300 mx-2 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
+                });
+            }
+            totalValEl.innerText = `Rs. ${sectionTotal.toLocaleString()}`;
+        }
+
+        function editEntry(sid, idx) {
+            const entry = data[sid][idx];
+            activeSectionForModal = sid;
+            document.getElementById('edit-index').value = idx;
+            document.getElementById('entry-date').value = entry.date;
+            document.getElementById('entry-desc').value = entry.desc;
+            if (sid === 'dues' || sid === 'receivables') {
+                document.getElementById('entry-total-due').value = entry.total;
+                document.getElementById('entry-paid-due').value = 0;
+            }
+            else document.getElementById('entry-amount').value = entry.amount;
+            openModal();
+        }
+
+        function deleteItem(sid, idx) { 
+            if(confirm('Are you sure you want to delete this entry?')) {
+                data[sid].splice(idx, 1); updateStorage(); 
+                if(currentSection === sid) renderTable(sid); else updateDashboard(); 
+            }
+        }
+
+        function openSubHistory(sid, idx) {
+            currentSubSid = sid;
+            currentSubIndex = idx;
+            const entry = data[sid][idx];
+            document.getElementById('hist-name').innerText = entry.desc;
+            renderSubHistory();
+            document.getElementById('history-modal').classList.replace('hidden', 'flex');
+        }
+
+        function closeHistory() { document.getElementById('history-modal').classList.replace('flex', 'hidden'); }
+
+        function renderSubHistory() {
+            const entry = data[currentSubSid][currentSubIndex];
+            const list = document.getElementById('hist-list');
+            const totalPaid = entry.payments.reduce((s,p)=>s+p.amount, 0);
+            const remaining = entry.total - totalPaid;
+            
+            list.innerHTML = entry.payments.map((p, i) => `
+                <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400">${p.date}</p>
+                        <p class="text-xs font-black text-slate-900">Rs. ${p.amount.toLocaleString()}</p>
+                    </div>
+                    <button onclick="deletePayment(${i})" class="text-slate-300 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+            `).join('');
+
+            const isCleared = remaining <= 0;
+            document.getElementById('payment-input-section').classList.toggle('hidden', isCleared);
+            document.getElementById('fully-paid-message').classList.toggle('hidden', !isCleared);
+            if (!isCleared) document.getElementById('new-pay-date').value = new Date().toISOString().split('T')[0];
+        }
+
+        function saveNewPayment() {
+            const amt = parseFloat(document.getElementById('new-pay-amount').value);
+            const date = document.getElementById('new-pay-date').value;
+            if(amt > 0 && date) {
+                data[currentSubSid][currentSubIndex].payments.push({amount: amt, date});
+                updateStorage();
+                renderSubHistory();
+                if(currentSection === currentSubSid) renderTable(currentSubSid);
+                document.getElementById('new-pay-amount').value = '';
+            }
+        }
+
+        function deletePayment(idx) {
+            data[currentSubSid][currentSubIndex].payments.splice(idx, 1);
+            updateStorage();
+            renderSubHistory();
+            if(currentSection === currentSubSid) renderTable(currentSubSid);
+        }
+
+        function updateDashboard() {
+            const incomeTotal = data.income.reduce((s,i)=>s+i.amount, 0);
+            const savingsTotal = data.savings.reduce((s,i)=>s+i.amount, 0);
+            const expenseTotal = (data.daily.reduce((s,i)=>s+i.amount, 0) + 
+                                data.grocery.reduce((s,i)=>s+i.amount, 0) + 
+                                data.personal.reduce((s,i)=>s+i.amount, 0) + 
+                                data.household.reduce((s,i)=>s+i.amount, 0));
+
+            const actualPaidDues = data.dues.reduce((s,i) => {
+                return s + i.payments.reduce((sp,p)=>sp+p.amount, 0);
+            }, 0);
+
+            const actualReceivedTotal = data.receivables.reduce((s,i) => {
+                return s + i.payments.reduce((sp,p)=>sp+p.amount, 0);
+            }, 0);
+
+            const outstandingReceivables = data.receivables.reduce((s,i) => {
+                const paid = i.payments.reduce((sp,p)=>sp+p.amount, 0);
+                return s + (i.total - paid);
+            }, 0);
+            const outstandingDues = data.dues.reduce((s,i) => {
+                const paid = i.payments.reduce((sp,p)=>sp+p.amount, 0);
+                return s + (i.total - paid);
+            }, 0);
+
+            const netBalance = incomeTotal + actualReceivedTotal - expenseTotal - savingsTotal - actualPaidDues;
+
+            document.getElementById('stat-balance').innerText = `Rs. ${netBalance.toLocaleString()}`;
+            document.getElementById('stat-income').innerText = `Rs. ${incomeTotal.toLocaleString()}`;
+            document.getElementById('stat-expense').innerText = `Rs. ${expenseTotal.toLocaleString()}`;
+            document.getElementById('stat-total-savings').innerText = `Rs. ${savingsTotal.toLocaleString()}`;
+            document.getElementById('stat-dues').innerText = `Rs. ${outstandingDues.toLocaleString()}`;
+            document.getElementById('stat-receivables').innerText = `Rs. ${outstandingReceivables.toLocaleString()}`;
+            document.getElementById('stat-daily-total').innerText = `Rs. ${data.daily.reduce((s,i)=>s+i.amount, 0).toLocaleString()}`;
+
+            const activityList = document.getElementById('recent-activity-list');
+            let all = [];
+            Object.keys(data).forEach(key => {
+                data[key].forEach(item => all.push({...item, section: key}));
+            });
+            all.sort((a,b) => new Date(b.date) - new Date(a.date));
+            
+            activityList.innerHTML = all.slice(0, 5).map(item => {
+                const isPositive = (item.section === 'income' || item.section === 'receivables');
+                const val = (item.section === 'dues' || item.section === 'receivables') ? item.total : item.amount;
+                return `
+                    <div class="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 ${config[item.section].color} rounded-xl flex items-center justify-center text-lg">
+                                <i class="fa-solid ${config[item.section].icon}"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-900">${item.desc}</p>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">${config[item.section].title} • ${item.date}</p>
+                            </div>
+                        </div>
+                        <p class="font-black text-sm ${isPositive ? 'text-emerald-500' : 'text-slate-900'}">
+                            ${isPositive ? '+' : '-'} Rs. ${val.toLocaleString()}
+                        </p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.onload = () => { showSection('dashboard'); };
+    </script>
+</body>
+</html>
