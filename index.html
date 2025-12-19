@@ -182,7 +182,6 @@
 
                     <!-- Statistics Grid -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                        <!-- Each card is now responsive -->
                         <div class="bg-white p-5 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 shadow-sm stat-card">
                             <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center mb-4">
                                 <i class="fa-solid fa-arrow-up text-emerald-500"></i>
@@ -272,7 +271,7 @@
         </main>
     </div>
 
-    <!-- ENTRY MODAL (CENTERED & SMALLER) -->
+    <!-- ENTRY MODAL -->
     <div id="modal" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-50 p-4 backdrop-blur-md">
         <div class="bg-white w-full max-w-md rounded-[2rem] shadow-2xl p-6 transform transition-all border border-white/20 modal-container custom-scroll">
             <div class="flex justify-between items-start mb-6">
@@ -317,9 +316,9 @@
         </div>
     </div>
 
-    <!-- HISTORY MODAL (CENTERED & SMALLER) -->
+    <!-- HISTORY MODAL -->
     <div id="history-modal" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-[60] p-4 backdrop-blur-md">
-        <div class="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl p-6 border border-white/20 modal-container custom-scroll">
+        <div class="bg-white w-full max-sm:rounded-t-[2rem] sm:rounded-[2rem] max-w-sm shadow-2xl p-6 border border-white/20 modal-container custom-scroll sm:relative absolute bottom-0">
             <div class="flex justify-between items-start mb-6">
                 <div>
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Payment History</p>
@@ -381,7 +380,7 @@
 
         function showSection(id) {
             currentSection = id;
-            if (window.innerWidth < 768) toggleSidebar(); // Close on mobile
+            if (window.innerWidth < 768 && document.getElementById('sidebar').classList.contains('sidebar-mobile-active')) toggleSidebar();
 
             document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
             const sidebarBtns = Array.from(document.querySelectorAll('.sidebar-item'));
@@ -440,7 +439,6 @@
             if(activeSectionForModal === 'dues' || activeSectionForModal === 'receivables') {
                 const total = parseFloat(document.getElementById('entry-total-due').value) || 0;
                 const initial = parseFloat(document.getElementById('entry-paid-due').value) || 0;
-                
                 const newObj = {
                     date, desc, total,
                     payments: editIdx === -1 ? (initial > 0 ? [{amount: initial, date}] : []) : data[activeSectionForModal][editIdx].payments
@@ -567,13 +565,8 @@
                                 data.personal.reduce((s,i)=>s+i.amount, 0) + 
                                 data.household.reduce((s,i)=>s+i.amount, 0));
 
-            const actualPaidDues = data.dues.reduce((s,i) => {
-                return s + i.payments.reduce((sp,p)=>sp+p.amount, 0);
-            }, 0);
-
-            const actualReceivedTotal = data.receivables.reduce((s,i) => {
-                return s + i.payments.reduce((sp,p)=>sp+p.amount, 0);
-            }, 0);
+            const actualPaidDues = data.dues.reduce((s,i) => s + i.payments.reduce((sp,p)=>sp+p.amount, 0), 0);
+            const actualReceivedTotal = data.receivables.reduce((s,i) => s + i.payments.reduce((sp,p)=>sp+p.amount, 0), 0);
 
             const outstandingReceivables = data.receivables.reduce((s,i) => {
                 const paid = i.payments.reduce((sp,p)=>sp+p.amount, 0);
@@ -612,7 +605,7 @@
                             </div>
                             <div class="min-w-0">
                                 <p class="text-sm font-bold text-slate-900 truncate">${item.desc}</p>
-                                <p class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">${config[item.section].title}</p>
+                                <p class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">${config[item.section].title} • ${item.date}</p>
                             </div>
                         </div>
                         <p class="font-black text-xs md:text-sm ${isPositive ? 'text-emerald-500' : 'text-slate-900'} whitespace-nowrap ml-2">
@@ -623,9 +616,7 @@
             }).join('');
         }
 
-        window.onload = () => { 
-            showSection('dashboard');
-        };
+        window.onload = () => { showSection('dashboard'); };
     </script>
 </body>
 </html>
